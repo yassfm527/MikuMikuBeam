@@ -32,8 +32,6 @@ function App() {
       const handler = () => {
         if (audio.paused) return;
 
-        console.log(audio.currentTime);
-
         if (animState !== 2 && audio.currentTime > 5.24 && audio.currentTime < 9.4) {
           setAnimState(2);
         }
