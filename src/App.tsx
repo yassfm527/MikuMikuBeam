@@ -1,8 +1,68 @@
-import { Bot, Wand2, Wifi, Zap } from "lucide-react";
+import { Bot, ScrollText, Wand2, Wifi, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:3000");
+
+function ConfigureProxiesAndAgentsView() {
+  let [loadingConfiguration, setLoadingConfiguration] = useState(false);
+  let [configuration, setConfiguration] = useState<string[]>([]);
+
+  async function retrieveConfiguration(): Promise<string[]> {
+    let response = await fetch(`http://localhost:3000/configuration`);
+    let information = await response.json() as {
+      proxies: string,
+      uas: string,
+    }
+
+    let proxies = atob(information.proxies);
+    let uas = atob(information.uas);
+
+    return [proxies, uas]
+  }
+
+  useEffect(() => {
+    if (!loadingConfiguration) {
+      setLoadingConfiguration(true);
+      retrieveConfiguration().then((config) => {
+        setLoadingConfiguration(false);
+        setConfiguration(config);
+      })
+    }
+  }, [])
+
+  function saveConfiguration() {
+    let obj = {
+      proxies: btoa(configuration[0]),
+      uas: btoa(configuration[1])
+    }
+
+    // console.log(obj)
+
+    let response = fetch(`http://localhost:3000/configuration`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(obj),
+    });
+
+    response.then(() => {
+      alert("Saved")
+      window.location.reload();
+    })
+  }
+
+  return <div className="fixed grid p-8 mx-auto -translate-x-1/2 -translate-y-1/2 bg-white rounded-md shadow-lg max-w-7xl place-items-center left-1/2 top-1/2">
+    {loadingConfiguration ? <div className="flex flex-col items-center justify-center space-y-2"><img src="/loading.gif" className="rounded-sm shadow-sm" /><p>Loading proxies.txt and uas.txt...</p></div> : <div className="w-[56rem] flex flex-col">
+      <p className="pl-1 mb-1 italic">proxies.txt</p>
+      <textarea value={configuration[0]} className="w-full h-40 p-2 border-black/10 border-[1px] rounded-sm resize-none" onChange={(e) => setConfiguration([e.target.value, configuration[1]])} placeholder="socks5://0.0.0.0"></textarea>
+      <p className="pl-1 mt-2 mb-1 italic">uas.txt</p>
+      <textarea value={configuration[1]} className="w-full h-40 p-2 border-black/10 border-[1px] rounded-sm resize-none" onChange={(e) => setConfiguration([configuration[0], e.target.value])} placeholder="Mozilla/5.0 (Linux; Android 10; K)..."></textarea>
+      <button onClick={saveConfiguration} className="p-4 mt-4 text-white bg-gray-800 rounded-md hover:bg-gray-900">Write Changes</button>
+    </div>}
+  </div>
+}
 
 function App() {
   const [isAttacking, setIsAttacking] = useState(false);
@@ -23,6 +83,8 @@ function App() {
   const [lastTotalPackets, setLastTotalPackets] = useState(0);
   const [currentTask, setCurrentTask] = useState<NodeJS.Timeout | null>(null);
   const [audioVol, setAudioVol] = useState(100);
+  const [openedConfig, setOpenedConfig] = useState(false);
+
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -91,13 +153,13 @@ function App() {
     };
   }, []);
 
-  
+
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = audioVol / 100;
     }
   }, [audioVol])
- 
+
 
   const addLog = (message: string) => {
     setLogs((prev) => [message, ...prev].slice(0, 12));
@@ -148,9 +210,8 @@ function App() {
 
   return (
     <div
-      className={`w-screen h-screen bg-gradient-to-br from-pink-100 to-blue-100 p-8 overflow-y-auto ${
-        actuallyAttacking ? "shake" : ""
-      }`}
+      className={`w-screen h-screen bg-gradient-to-br from-pink-100 to-blue-100 p-8 overflow-y-auto ${actuallyAttacking ? "shake" : ""
+        }`}
     >
       <audio ref={audioRef} src="/audio.mp3" />
 
@@ -189,15 +250,15 @@ function App() {
                 disabled={isAttacking}
               />
               <div className="flex items-center gap-2">
+
                 <button
                   onClick={() => (isAttacking ? stopAttack() : startAttack())}
                   className={`
                   px-8 py-2 rounded-lg font-semibold text-white transition-all w-full
-                  ${
-                    isAttacking
+                  ${isAttacking
                       ? "bg-red-500 hover:bg-red-600"
                       : "bg-pink-500 hover:bg-pink-600"
-                  }
+                    }
                   flex items-center justify-center gap-2
                 `}
                 >
@@ -210,15 +271,19 @@ function App() {
                   }
                   className={`
                   px-2 py-2 rounded-lg font-semibold text-white transition-all
-                  ${
-                    isAttacking
+                  ${isAttacking
                       ? "bg-gray-500 hover:bg-red-600"
                       : "bg-cyan-500 hover:bg-cyan-600"
-                  }
+                    }
                   flex items-center justify-center gap-2
                 `}
+
                 >
                   <Zap className="w-5 h-5" />
+                </button>
+                <button className={`px-2 py-2 rounded-lg font-semibold text-white transition-all flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900`} onClick={() => setOpenedConfig(true)}>
+                  <ScrollText className="w-5 h-5" />
+
                 </button>
               </div>
             </div>
@@ -351,20 +416,22 @@ function App() {
           )}
         </div>
 
+        {openedConfig ? <ConfigureProxiesAndAgentsView /> : undefined}
+
         <div className="flex flex-col items-center">
-          <span className="text-sm text-center text-gray-500"> 
-          🎵 v1.0 made by{" "}
-          <a
-            href="https://github.com/sammwyy/mikumikubeam"
-            target="_blank"
-            rel="noreferrer"
-          >
-            @Sammwy
-          </a>{" "}
-          🎵
+          <span className="text-sm text-center text-gray-500">
+            🎵 v1.0 made by{" "}
+            <a
+              href="https://github.com/sammwyy/mikumikubeam"
+              target="_blank"
+              rel="noreferrer"
+            >
+              @Sammwy
+            </a>{" "}
+            🎵
           </span>
           <span>
-          <input className="shadow-sm volume_bar focus:border-pink-500" type="range" min="0" max="100" step="5" draggable="false" value={audioVol} onChange={(e) => setAudioVol(parseInt(e.target?.value))} />
+            <input className="shadow-sm volume_bar focus:border-pink-500" type="range" min="0" max="100" step="5" draggable="false" value={audioVol} onChange={(e) => setAudioVol(parseInt(e.target?.value))} />
           </span>
         </div>
       </div>

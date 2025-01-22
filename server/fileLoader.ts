@@ -3,7 +3,7 @@ import { join } from "path";
 
 import { Proxy } from "./lib";
 
-const currentPath = () => {
+export const currentPath = () => {
   const path = process.cwd();
   return path === "/" ? "." : path;
 };

@@ -79,6 +79,12 @@ Once the server is up and running, you can interact with it via the frontend:
 }
 ```
 
+## Adding Proxies and User-Agents
+
+Access to the ``data/proxies.txt`` and ``data/uas.txt`` can now be done fully in the frontend. Click the text button to the right of the beam button to open up the editor.
+
+![AnnotatedImage](docs/annotated-button.png)
+
 ## Worker-Based Attack Handling 🔧💡
 
 Each attack type is handled in a separate worker thread, ensuring that the main server remains responsive. The attack workers are dynamically loaded based on the selected attack method (HTTP, etc...).
