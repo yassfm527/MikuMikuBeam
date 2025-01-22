@@ -1,13 +1,15 @@
 import express from "express";
 import { createServer } from "http";
 import { dirname, join } from "path";
+import { readFileSync, writeFileSync } from "fs";
 import { Server } from "socket.io";
 import { fileURLToPath } from "url";
 import { Worker } from "worker_threads";
 
-import { loadProxies, loadUserAgents } from "./fileLoader";
+import { currentPath, loadProxies, loadUserAgents } from "./fileLoader";
 import { AttackMethod } from "./lib";
 import { filterProxies } from "./proxyUtils";
+import bodyParser from "body-parser";
 
 // Define the workers based on attack type
 const attackWorkers: { [key in AttackMethod]: string } = {
@@ -26,6 +28,7 @@ const io = new Server(httpServer, {
   cors: {
     origin: "http://localhost:5173",
     methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
   },
 });
 
@@ -104,6 +107,47 @@ io.on("connection", (socket) => {
     console.log("Client disconnected");
   });
 });
+
+app.get("/configuration", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173")
+  res.setHeader("Content-Type", "application/json");
+  let proxiesText = readFileSync(join(currentPath(), "data", "proxies.txt"), "utf-8");
+  let uasText = readFileSync(join(currentPath(), "data", "uas.txt"), "utf-8");
+
+  res.send({
+    proxies: btoa(proxiesText),
+    uas: btoa(uasText),
+  })
+})
+
+app.options('/configuration', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.send();
+});
+
+
+app.post("/configuration", bodyParser.json(), (req, res) => {
+  res.setHeader("Access-Control-Allow-Methods", "POST");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173")
+  res.setHeader("Content-Type", "application/text");
+
+  // console.log(req.body)
+
+  // atob and btoa are used to avoid the problems in sending data with // characters, etc.
+  let proxies = atob(req.body["proxies"]);
+  let uas = atob(req.body["uas"]);
+  writeFileSync(join(currentPath(), "data", "proxies.txt"), proxies, {
+    encoding: "utf-8"
+  });
+  writeFileSync(join(currentPath(), "data", "uas.txt"), uas, {
+    encoding: "utf-8"
+  });
+
+  res.send("OK")
+})
 
 const PORT = 3000;
 httpServer.listen(PORT, () => {
