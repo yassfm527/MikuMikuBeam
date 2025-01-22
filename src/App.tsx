@@ -7,6 +7,7 @@ const socket = io("http://localhost:3000");
 function App() {
   const [isAttacking, setIsAttacking] = useState(false);
   const [actuallyAttacking, setActuallyAttacking] = useState(false);
+  const [animState, setAnimState] = useState(0);
   const [logs, setLogs] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [target, setTarget] = useState("");
@@ -29,7 +30,14 @@ function App() {
     if (audioRef.current) {
       const audio = audioRef.current;
       const handler = () => {
-        if (!audio.paused && audio.currentTime > 17.53) {
+        if (audio.paused) return;
+
+        console.log(audio.currentTime);
+
+        if (animState !== 2 && audio.currentTime > 5.24 && audio.currentTime < 9.4) {
+          setAnimState(2);
+        }
+        if (audio.currentTime > 17.53) {
           audio.currentTime = 15.86;
         }
       };
@@ -44,6 +52,7 @@ function App() {
   useEffect(() => {
     if (!isAttacking) {
       setActuallyAttacking(false);
+      setAnimState(0);
 
       const audio = audioRef.current;
       if (audio) {
@@ -124,10 +133,13 @@ function App() {
       audioRef.current.play();
     }
 
+    if (!isQuick) setAnimState(1);
+
     // Start attack after audio intro
     const timeout = setTimeout(
       () => {
         setActuallyAttacking(true);
+        setAnimState(3);
         socket.emit("startAttack", {
           target,
           packetSize,
@@ -148,7 +160,7 @@ function App() {
 
   return (
     <div
-      className={`w-screen h-screen bg-gradient-to-br from-pink-100 to-blue-100 p-8 overflow-y-auto ${
+      className={`w-screen h-screen bg-gradient-to-br ${animState === 0 || animState === 3 ? "from-pink-100 to-blue-100" : animState === 2 ? "background-pulse" : "bg-gray-950"} p-8 overflow-y-auto ${
         actuallyAttacking ? "shake" : ""
       }`}
     >
@@ -159,13 +171,13 @@ function App() {
           <h1 className="mb-2 text-4xl font-bold text-pink-500">
             Miku Miku Beam
           </h1>
-          <p className="text-gray-600">
+          <p className={`${animState === 0 || animState === 3 ? "text-gray-600" : "text-white"}`}>
             Because DDoS attacks are also cute and even more so when Miku does
             them.
           </p>
         </div>
 
-        <div className="relative p-6 overflow-hidden bg-white rounded-lg shadow-xl">
+        <div className={`relative p-6 overflow-hidden rounded-lg shadow-xl ${animState === 0 || animState === 3 ? "bg-white" : "bg-gray-950"}`}>
           {/* Miku GIF */}
           <div
             className="flex justify-center w-full h-48 mb-6"
@@ -174,6 +186,8 @@ function App() {
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center",
               backgroundSize: "cover",
+              opacity: animState === 0 || animState === 3 ? 1 : 0,
+              transition: "opacity 0.2s ease-in-out",
             }}
           ></div>
 
@@ -185,7 +199,7 @@ function App() {
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
                 placeholder="Enter target URL or IP"
-                className="px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                className={`${animState === 0 || animState === 3 ? "" : "text-white"} px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200`}
                 disabled={isAttacking}
               />
               <div className="flex items-center gap-2">
@@ -225,13 +239,13 @@ function App() {
 
             <div className="grid grid-cols-4 gap-4">
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
+                <label className={`block mb-1 text-sm font-medium ${animState === 0 || animState === 3 ? "text-gray-700" : "text-white"}`}>
                   Attack Method
                 </label>
                 <select
                   value={attackMethod}
                   onChange={(e) => setAttackMethod(e.target.value)}
-                  className="w-full px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                  className={`${animState === 0 || animState === 3 ? "" : "text-gray-900"} w-full px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200`}
                   disabled={isAttacking}
                 >
                   <option value="http_flood">HTTP/Flood</option>
@@ -241,42 +255,42 @@ function App() {
                 </select>
               </div>
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
+                <label className={`block mb-1 text-sm font-medium ${animState === 0 || animState === 3 ? "text-gray-700" : "text-white"}`}>
                   Packet Size (kb)
                 </label>
                 <input
                   type="number"
                   value={packetSize}
                   onChange={(e) => setPacketSize(Number(e.target.value))}
-                  className="w-full px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                  className={`${animState === 0 || animState === 3 ? "" : "text-white"} w-full px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200`}
                   disabled={isAttacking}
                   min="1"
                   max="1500"
                 />
               </div>
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
+                <label className={`block mb-1 text-sm font-medium ${animState === 0 || animState === 3 ? "text-gray-700" : "text-white"}`}>
                   Duration (seconds)
                 </label>
                 <input
                   type="number"
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
-                  className="w-full px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                  className={`${animState === 0 || animState === 3 ? "" : "text-white"} w-full px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200`}
                   disabled={isAttacking}
                   min="1"
                   max="300"
                 />
               </div>
               <div>
-                <label className="block mb-1 text-sm font-medium text-gray-700">
+                <label className={`block mb-1 text-sm font-medium ${animState === 0 || animState === 3 ? "text-gray-700" : "text-white"}`}>
                   Packet Delay (ms)
                 </label>
                 <input
                   type="number"
                   value={packetDelay}
                   onChange={(e) => setPacketDelay(Number(e.target.value))}
-                  className="w-full px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200"
+                  className={`${animState === 0 || animState === 3 ? "" : "text-white"} w-full px-4 py-2 border border-pink-200 rounded-lg outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-200`}
                   disabled={isAttacking}
                   min="1"
                   max="1000"
@@ -292,7 +306,7 @@ function App() {
                 <Zap className="w-4 h-4" />
                 <span className="font-semibold">Packets/sec</span>
               </div>
-              <div className="text-2xl font-bold text-gray-800">
+              <div className={`text-2xl font-bold ${animState === 0 || animState === 3 ? "text-gray-800" : "text-white"}`}>
                 {stats.pps.toLocaleString()}
               </div>
             </div>
@@ -301,7 +315,7 @@ function App() {
                 <Bot className="w-4 h-4" />
                 <span className="font-semibold">Active Bots</span>
               </div>
-              <div className="text-2xl font-bold text-gray-800">
+              <div className={`text-2xl font-bold ${animState === 0 || animState === 3 ? "text-gray-800" : "text-white"}`}>
                 {stats.bots.toLocaleString()}
               </div>
             </div>
@@ -310,7 +324,7 @@ function App() {
                 <Wifi className="w-4 h-4" />
                 <span className="font-semibold">Total Packets</span>
               </div>
-              <div className="text-2xl font-bold text-gray-800">
+              <div className={`text-2xl font-bold ${animState === 0 || animState === 3 ? "text-gray-800" : "text-white"}`}>
                 {stats.totalPackets.toLocaleString()}
               </div>
             </div>

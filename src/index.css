@@ -9,6 +9,23 @@ body {
   background-color: black;
 }
 
+.background-pulse {
+  animation: background-pulse 0.31s infinite;
+  transition: background-color 0.2s ease-in-out;
+}
+
+@keyframes background-pulse {
+  0% {
+    background-color: rgb(3 7 18 / var(--tw-bg-opacity, 1));
+  }
+  50% {
+    background-color: rgb(48, 15, 31)
+  }
+  100% {
+    transform: rgb(3 7 18 / var(--tw-bg-opacity, 1));
+  }
+}
+
 /* Infinite intense shaking */
 .shake {
   animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
