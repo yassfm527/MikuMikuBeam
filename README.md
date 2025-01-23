@@ -142,6 +142,7 @@ const attackHandlers = {
 
 > 4. Requests fail to be sent to the target server (Read timeout and variations)
 **Re:** You must put the corresponding proxies in the file `data/proxies.txt`. On each line, put a different proxy that will be used to perform the attack. The format must be the following:
+- `protocol://user:password@host:port` (Proxy with authentication)
 - `protocol://host:port`
 - `host:port` (Uses http as default protocol)
 - `host` (Uses 8080 as default port)

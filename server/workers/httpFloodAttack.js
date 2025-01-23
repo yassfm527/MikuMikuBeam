@@ -27,9 +27,16 @@ const startAttack = () => {
           host: proxy.host,
           port: proxy.port,
         };
+
+        if (proxy.username && proxy.password) {
+          config.proxy.auth = {
+            username: proxy.username,
+            password: proxy.password,
+          }
+        }
       } else if (proxy.protocol === "socks4" || proxy.protocol === "socks5") {
-        config.httpAgent = new SocksProxyAgent(
-          `${proxy.protocol}://${proxy.host}:${proxy.port}`
+        config.httpAgent, config.httpsAgent = new SocksProxyAgent(
+          `${proxy.protocol}://${proxy.username && proxy.password ? `${proxy.username}:${proxy.password}@` : ""}${proxy.host}:${proxy.port}`
         );
       }
 
