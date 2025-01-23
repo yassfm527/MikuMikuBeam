@@ -20,7 +20,7 @@ const startAttack = () => {
     socket.setTimeout(2000);
 
     const proxyAgent = new SocksProxyAgent(
-      `${proxy.protocol}://${proxy.host}:${proxy.port}`
+      `${proxy.protocol}://${proxy.username && proxy.password ? `${proxy.username}:${proxy.password}@` : ""}${proxy.host}:${proxy.port}`
     );
 
     setInterval(() => {
