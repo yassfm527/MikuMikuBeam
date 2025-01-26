@@ -6,6 +6,7 @@ A fun and visually appealing stress testing server with a **Miku-themed** fronte
 
 ## Features 🎉
 
+- 🐳 **Docker Ready**: MMB is ready to be built and run in a Docker container.
 - 🌐 **Real-time Attack Visualization**: View your attack’s progress and statistics in real-time as it runs. 🔥
 - 🎶 **Miku-themed UI**: A cute and vibrant design with Miku’s vibe to make the process more fun. Includes a banger song to keep you pumped! 🎧
 - 🧑‍💻 **Configurable Attack Parameters**: Easily set the attack method, packet size, duration, and packet delay via the frontend interface.
