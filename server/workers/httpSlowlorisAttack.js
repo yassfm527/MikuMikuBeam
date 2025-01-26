@@ -31,7 +31,7 @@ const startAttack = () => {
         Host: targetHost,
       },
       agent: new SocksProxyAgent(
-        `${proxy.protocol}://${proxy.host}:${proxy.port}`
+        `${proxy.protocol}://${proxy.username && proxy.password ? `${proxy.username}:${proxy.password}@` : ""}${proxy.host}:${proxy.port}`
       ),
     };
 

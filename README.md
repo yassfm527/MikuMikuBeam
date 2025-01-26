@@ -128,23 +128,25 @@ const attackHandlers = {
 
 ### FAQs ❓
 
-> 1. What operating system does MMB support?
+**1. What operating system does MMB support?**
 
-**Re:** **Windows**, **Linux**, **Mac** and **Android (untested)**
+> **Windows**, **Linux**, **Mac** and **Android (untested)**
 
-> 2. It crashes on startup, giving a "concurrently" error.
+**2. It crashes on startup, giving a "concurrently" error**
 
-**Re:** Try running two terminals instead of one, in the first one use "npm run dev:client", and in the other one "npm run dev:server". (This happened to several people with Windows 11)
+> Try running two terminals instead of one, in the first one use "npm run dev:client", and in the other one "npm run dev:server". (This happened to several people with Windows 11)
 
-> 3. I go to "http://localhost:3000" and nothing appears.
+**3. I go to "http://localhost:3000" and nothing appears.**
 
-**Re:** Port `3000` is the server port, to see the UI you must use port `5173` (http://localhost:5173)
+> Port `3000` is the server port, to see the UI you must use port `5173` (http://localhost:5173)
 
-> 4. Requests fail to be sent to the target server (Read timeout and variations)
-**Re:** You must put the corresponding proxies in the file `data/proxies.txt`. On each line, put a different proxy that will be used to perform the attack. The format must be the following:
-- `protocol://host:port`
-- `host:port` (Uses http as default protocol)
-- `host` (Uses 8080 as default port)
+**4. Requests fail to be sent to the target server (Read timeout and variations)**
+
+> You must put the corresponding proxies in the file `data/proxies.txt`. On each line, put a different proxy that will be used to perform the attack. The format must be the following:
+> - `protocol://user:password@host:port` (Proxy with authentication)
+> - `protocol://host:port`
+> - `host:port` (Uses http as default protocol)
+> - `host` (Uses 8080 as default port)
 
 ---
 

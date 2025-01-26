@@ -87,10 +87,10 @@ class MinecraftBufferReader {
 
 export function pingMinecraftServer(host, port, proxy) {
   return new Promise((resolve, reject) => {
-    const { protocol, host: proxyHost, port: proxyPort } = proxy;
+    const { protocol, host: proxyHost, port: proxyPort, username: proxyUsername, password: proxyPassword } = proxy;
 
     const agent = new SocksProxyAgent(
-      `${protocol}://${proxyHost}:${proxyPort}`
+      `${protocol}://${proxyUsername && proxyPassword ? `${proxyUsername}:${proxyPassword}@` : ""}${proxyHost}:${proxyPort}`
     );
 
     const socket = net.createConnection({

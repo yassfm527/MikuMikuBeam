@@ -69,7 +69,7 @@ function ConfigureProxiesAndAgentsView() {
             onChange={(e) =>
               setConfiguration([e.target.value, configuration[1]])
             }
-            placeholder="socks5://0.0.0.0"
+            placeholder="socks5://0.0.0.0&#10;socks4://user:pass@0.0.0.0:12345"
           ></textarea>
           <p className="pl-1 mt-2 mb-1 italic">uas.txt</p>
           <textarea

@@ -28,9 +28,23 @@ export function loadUserAgents() {
 
 export function loadProxies(): Proxy[] {
   const lines = loadFileLines(join(currentPath(), "data/proxies.txt"));
+
+  //RegEx for proxies with authentication (protocol://user:pass@host:port)
+  const authProxiesRegEx = new RegExp(/^(http|https|socks4|socks5|):\/\/(\S+:\S+)@((\w+|\d+\.\d+\.\d+\.\d+):\d+)$/, 'g');
+
   return lines.map((line) => {
-    const [protocol, addr] = line.split("://");
-    const [host, port] = addr.split(":");
-    return { protocol, host, port: parseInt(port) };
+    const [protocol, loginInfo] = line.split("://");
+
+    if (authProxiesRegEx.test(line)) {
+      const [auth, addr] = loginInfo.split("@");
+      const [user, pass] = auth.split(":");
+      const [host, port] = addr.split(":");
+
+      return { protocol, host, port: parseInt(port), username: user, password: pass };
+    } else {
+      const [host, port] = loginInfo.split(":");
+
+      return { protocol, host, port: parseInt(port) };
+    }
   });
 }
