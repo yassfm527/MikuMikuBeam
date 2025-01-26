@@ -27,7 +27,7 @@ Make sure you have the following installed:
 - Node.js (v14 or above) 🌱
 - npm (Node Package Manager) 📦
 
-### Installation 💻
+### Development Mode 🔧
 
 1. Clone this repository:
 
@@ -43,18 +43,50 @@ Make sure you have the following installed:
    ```
 
 3. Create the necessary files:
-   - `proxies.txt` - List of proxies.
-   - `uas.txt` - List of user agents.
+   - `data/proxies.txt` - List of proxies.
+   - `data/uas.txt` - List of user agents.
 
-4. Run the server:
+4. Run the server in development mode:
 
    ```bash
    npm run dev
    ```
 
-   The server will run on port `3000` by default. 🌐
+   - The **frontend** runs on `http://localhost:5173`.
+   - The **backend** runs on `http://localhost:3000`.
 
-5. Open the frontend (usually accessible at `http://localhost:5173`), where you can configure and visualize your attacks.
+---
+
+### Production Mode 💥
+
+1. Clone the repository and navigate to the project directory:
+
+   ```bash
+   git clone https://github.com/sammwyy/mikumikubeam.git
+   cd mikumikubeam
+   ```
+
+2. Install the dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Build the project:
+
+   ```bash
+   npm run build
+   ```
+
+4. Start the server in production mode:
+
+   ```bash
+   npm run start
+   ```
+
+   In production mode, both the **frontend** and **backend** are served on the same port (`http://localhost:3000`).
+
+> Don't forget to add the necessary files `data/proxies.txt` and `data/uas.txt`.
 
 ## Usage ⚙️
 
@@ -136,13 +168,14 @@ const attackHandlers = {
 
 > Try running two terminals instead of one, in the first one use "npm run dev:client", and in the other one "npm run dev:server". (This happened to several people with Windows 11)
 
-**3. I go to "http://localhost:3000" and nothing appears.**
+**3. I go to "<http://localhost:3000>" and nothing appears.**
 
-> Port `3000` is the server port, to see the UI you must use port `5173` (http://localhost:5173)
+> Port `3000` is the server port, to see the UI you must use port `5173` (<http://localhost:5173>)
 
 **4. Requests fail to be sent to the target server (Read timeout and variations)**
 
 > You must put the corresponding proxies in the file `data/proxies.txt`. On each line, put a different proxy that will be used to perform the attack. The format must be the following:
+>
 > - `protocol://user:password@host:port` (Proxy with authentication)
 > - `protocol://host:port`
 > - `host:port` (Uses http as default protocol)
