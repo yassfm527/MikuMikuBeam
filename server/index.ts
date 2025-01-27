@@ -14,6 +14,7 @@ import { filterProxies } from "./proxyUtils";
 // Define the workers based on attack type
 const attackWorkers: { [key in AttackMethod]: string } = {
   http_flood: "./workers/httpFloodAttack.js",
+  http_bypass: "./workers/httpBypassAttack.js",
   http_slowloris: "./workers/httpSlowlorisAttack.js",
   tcp_flood: "./workers/tcpFloodAttack.js",
   minecraft_ping: "./workers/minecraftPingAttack.js",

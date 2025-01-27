@@ -19,13 +19,14 @@ export function createAgent(proxy) {
 
 // HTTP Client
 export function createMimicHttpClient(proxy, userAgent) {
-  return axios.create({
+  return createHttpClient({
     headers: { "User-Agent": userAgent },
     proxy,
     timeout: 5000,
     validateStatus: (status) => {
       return status < 500;
     },
+    maxRedirects: 3,
   });
 }
 
@@ -39,15 +40,11 @@ export function createHttpClient(
     validateStatus: (status) => {
       return status < 500;
     },
-    proxy: {
-      protocol: "http",
-      host: "127.0.0.1",
-      port: 1080,
-    },
+    maxRedirects: 0,
+    proxy: {},
   }
 ) {
   const config = { ...clientConfig };
-  const client = axios.create(config);
   const proxy = config.proxy;
 
   if (proxy.protocol == "http" || proxy.protocol == "https") {
@@ -57,13 +54,17 @@ export function createHttpClient(
       auth: proxy.username ? { username: proxy.username } : null,
     };
   } else if (proxy.protocol == "socks4" || proxy.protocol == "socks5") {
-    config.httpAgent = createAgent(proxy);
+    const agent = createAgent(proxy);
+    config.proxy = false;
+    config.httpAgent = agent;
+    config.httpsAgent = agent;
   } else {
     throw new Error(
       "Unsupported proxy protocol for HTTP client: " + proxy.protocol
     );
   }
 
+  const client = axios.create(config);
   return client;
 }
 

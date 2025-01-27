@@ -14,6 +14,7 @@ const COMMON_PORTS: { [port: number]: ProxyProtocol } = {
 
 const METHODS: { [key in AttackMethod]: ProxyProtocol[] } = {
   http_flood: ["http", "https", "socks4", "socks5"],
+  http_bypass: ["http", "https", "socks4", "socks5"],
   http_slowloris: ["socks4", "socks5"],
   tcp_flood: ["socks4", "socks5"],
   minecraft_ping: ["socks4", "socks5"],

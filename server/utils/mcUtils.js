@@ -1,5 +1,5 @@
 // Adapted from: https://github.com/Cryptkeeper/mcping-js/
-import { createTcpClient } from "./clientUtils";
+import { createTcpClient } from "./clientUtils.js";
 
 class MinecraftProtocol {
   static writeVarInt(val) {

@@ -15,6 +15,7 @@ A fun and visually appealing stress testing server with a **Miku-themed** fronte
 - 🖼️ **Aesthetic Design**: A visually cute interface to make your experience enjoyable. 🌸
 - 📡 **Attack Methods:**:
   - `HTTP Flood` - Send random HTTP requests
+  - `HTTP Bypass` - Send HTTP requests that mimics real requests (Redirects, cookies, headers, resources...)
   - `HTTP Slowloris` - Send HTTP requests and keep the connection open
   - `Minecraft Ping` - Send Minecraft ping/motd requests
   - `TCP Flood` - Send random TCP packets

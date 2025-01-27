@@ -2,7 +2,25 @@ import { Bot, ScrollText, Wand2, Wifi, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3000");
+function isHostLocal(host: string) {
+  return (
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host.startsWith("::1") ||
+    host.startsWith("192.168") ||
+    host.startsWith("10.") ||
+    host.startsWith("172.")
+  );
+}
+
+function getSocketURL() {
+  const host = window.location.host.split(":")[0];
+  const isLocal = isHostLocal(host);
+  const socketURL = isLocal ? `http://${host}:3000` : "/";
+  return socketURL;
+}
+
+const socket = io(getSocketURL());
 
 function ConfigureProxiesAndAgentsView() {
   const [loadingConfiguration, setLoadingConfiguration] = useState(false);
@@ -369,6 +387,7 @@ function App() {
                   disabled={isAttacking}
                 >
                   <option value="http_flood">HTTP/Flood</option>
+                  <option value="http_bypass">HTTP/Bypass</option>
                   <option value="http_slowloris">HTTP/Slowloris</option>
                   <option value="tcp_flood">TCP/Flood</option>
                   <option value="minecraft_ping">Minecraft/Ping</option>
