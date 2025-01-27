@@ -1,6 +1,5 @@
 // Adapted from: https://github.com/Cryptkeeper/mcping-js/
-import net from "net";
-import { SocksProxyAgent } from "socks-proxy-agent";
+import { createTcpClient } from "./clientUtils";
 
 class MinecraftProtocol {
   static writeVarInt(val) {
@@ -87,17 +86,7 @@ class MinecraftBufferReader {
 
 export function pingMinecraftServer(host, port, proxy) {
   return new Promise((resolve, reject) => {
-    const { protocol, host: proxyHost, port: proxyPort, username: proxyUsername, password: proxyPassword } = proxy;
-
-    const agent = new SocksProxyAgent(
-      `${protocol}://${proxyUsername && proxyPassword ? `${proxyUsername}:${proxyPassword}@` : ""}${proxyHost}:${proxyPort}`
-    );
-
-    const socket = net.createConnection({
-      host: host,
-      port: port,
-      agent: agent,
-    });
+    const socket = createTcpClient(proxy, { host, port });
 
     const timeoutTask = setTimeout(() => {
       socket.emit("error", new Error("Socket timeout"));

