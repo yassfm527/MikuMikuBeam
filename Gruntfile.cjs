@@ -17,19 +17,26 @@ module.exports = function (grunt) {
       },
     },
 
-    // Copy worker files (Backend attack methods)
+    // Copy worker files (Backend attack methods and utilities)
     copy: {
-      static: {
+      static_workers: {
         expand: true,
         cwd: "server/workers/",
         src: "*",
         dest: "dist/workers/",
+      },
+      static_utils: {
+        expand: true,
+        cwd: "server/utils/",
+        src: "*",
+        dest: "dist/utils/",
       },
     },
 
     // Run concurrent tasks
     concurrent: {
       build: ["shell:buildClient", "shell:buildServer"],
+      copy_static: ["copy:static_workers", "copy:static_utils"],
     },
   });
 
@@ -41,7 +48,7 @@ module.exports = function (grunt) {
   grunt.registerTask("build", [
     "shell:clean",
     "concurrent:build",
-    "copy:static",
+    "concurrent:copy_static",
   ]);
 
   grunt.registerTask("build_server", ["shell:buildServer"]);
